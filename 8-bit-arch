@@ -1,0 +1,26 @@
+A 8-bit CPU.
+
+Can process 8 bits at a time, registers can hold value from 0-255.
+
+Instructions
+
+LOAD A  	0x01
+MOVE A->B	0x02
+ADD		0x03
+HLT		0x04
+
+Registers
+
+A
+B
+PC (Program Count)
+
+Memory
+
+Memory contains instructions to add A,B in hex format. This memory is ready by the PC - taken each instruction and translated and does the working.
+
+LOAD A <value>
+MOVE
+LOAD B <value>
+ADD
+HLT
