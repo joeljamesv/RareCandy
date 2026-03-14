@@ -16,6 +16,8 @@ B
 PC (Program Count)
 IR (Instruction Register)
 
+*memory - pointer to memory is included which mimics the Bus.
+
 Memory
 
 Memory contains instructions to add A,B in hex format. This memory is ready by the PC - taken each instruction and translated and does the working.
