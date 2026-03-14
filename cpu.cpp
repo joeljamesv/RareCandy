@@ -4,7 +4,6 @@
 void CPU::load(uint8_t number) { A = number; }
 void CPU::move() { B = A; }
 void CPU::add() { A = A + B; }
-void CPU::halt() { halted = true; }
 
 /*The Fetch operation fetches the Instruction stored in that address PC and
 places it into IR (Instruction Register) and finally increments the PC to store

@@ -7,14 +7,12 @@ private:
   uint16_t PC;
   uint8_t IR;
 
-  int halted = false; // This is again a register - so needs to removed and
-                      // another solution to break the loop
+  uint8_t *memory;
 
   void load(uint8_t NUM);
   void move();
   void add();
-  void halt();
-  void fetch(uint8_t *program);
+  void fetch();
   void decode();
   void execute();
 
