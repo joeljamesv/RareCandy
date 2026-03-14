@@ -9,7 +9,7 @@ private:
 
   uint8_t *memory;
 
-  void load(uint8_t NUM);
+  void load();
   void move();
   void add();
   void fetch();
