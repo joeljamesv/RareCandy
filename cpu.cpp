@@ -14,6 +14,27 @@ void CPU::fetch(uint8_t *program) {
   PC++;
 }
 
+/*The decode instruction, reads whatevers in the IR register,
+and switches it accordingly
+*/
+void CPU::decode() {
+  switch (IR) {
+  case 1:
+    load();
+    PC++;
+    break;
+  case 2:
+    move();
+    break;
+  case 3:
+    add();
+    break;
+
+  default:
+    break;
+  }
+}
+
 void CPU::cpuExecution(uint8_t *program) {
   while (1) {
     fetch(program);
