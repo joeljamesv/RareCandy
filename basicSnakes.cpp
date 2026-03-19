@@ -34,14 +34,17 @@ void printScreen() {
   }
 }
 
-int main() {
-  // Screen
-  for (int i = 0; i < screenHeight; i++) {
-    for (int j = 0; j < screenSize; j++) {
-      screen[i][j] = '.';
-    }
+void *scatterFood(void *arg) {
+  while (1) {
+    int foodSpotX = dist(gen);
+    int foodSpotY = dist(gen);
+    screen[foodSpotX][foodSpotY] = '*';
+    printScreen();
+    screen[foodSpotX][foodSpotY] = '.';
+
+    std::this_thread::sleep_for(std::chrono::seconds(1));
   }
-  std::cout << "\033[2J\033[H";
+}
 
 void setupScreen() {
   screenHeight = 10;
