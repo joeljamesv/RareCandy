@@ -43,10 +43,11 @@ int main() {
   }
   std::cout << "\033[2J\033[H";
 
-  int randomX = rand() % 20;
-  int randomY = rand() % 20;
-  printScreen();
-  // Randomly scatter the food and snake controls
+void setupScreen() {
+  screenHeight = 10;
+  screenWidth = 10;
+  memset(screen, '.', sizeof(screen));
+}
 
 int main() {
   /*
@@ -66,11 +67,9 @@ int main() {
   */
   printScreen();
 
-  screen[snakeX][snakeY] = snakeHeads[1];
   /*
-  Randomly place a snake head at the start
-  listens to 'W' 'A' 'S' 'D'
-  and choose the snake head from there
+  ScatterFood function - this would randomly take a pixel between screenHeint
+  and screenWidth and randomly place a food ('*') on that pixel
   */
 
   pthread_t foodDistributionUnit;
