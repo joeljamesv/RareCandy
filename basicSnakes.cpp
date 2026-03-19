@@ -25,8 +25,9 @@ std::mt19937 gen(rd());
 std::uniform_int_distribution<> dist(1, 10);
 
 void printScreen() {
+  std::cout << "\033[H";
   for (int i = 0; i < screenHeight; i++) {
-    for (int j = 0; j < screenSize; j++) {
+    for (int j = 0; j < screenWidth; j++) {
       std::cout << screen[i][j];
     }
     std::cout << std::endl;
@@ -47,9 +48,23 @@ int main() {
   printScreen();
   // Randomly scatter the food and snake controls
 
-  char snakeHeads[4] = {'<', '>', '^', 'V'};
-  int snakeX = rand() % 20;
-  int snakeY = rand() % 20;
+int main() {
+  /*
+  Setting up a screen
+  The screen is setup as 10*10 char spaces in console.
+
+  A array of ' ' is defined for the screen
+  The array is declared globally ease of use.
+  */
+  setupScreen();
+  std::cout << "\033[2J\033[H";
+  /*
+  PrintScreen
+  This would print the screen at that instant.
+  The screen is cleared at the first use and for every other uses the
+  cursor is placed at the top right and screen is overWritten
+  */
+  printScreen();
 
   screen[snakeX][snakeY] = snakeHeads[1];
   /*
