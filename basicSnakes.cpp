@@ -15,14 +15,54 @@ The snake |    body hypher(-)
 #include <pthread.h>
 #include <random>
 #include <thread>
+#include <termios.h>
+#include <atomic>
+#include <unistd.h>
+
+
+std::atomic<char> direction('d'); 
+std::atomic<bool> running(true);
+termios originalTermios;
+
+void enableRawMode() {
+    tcgetattr(STDIN_FILENO, &originalTermios);
+
+    termios raw = originalTermios;
+    raw.c_lflag &= ~(ICANON | ECHO);
+
+    tcsetattr(STDIN_FILENO, TCSANOW, &raw);
+}
+
+void disableRawMode() {
+    tcsetattr(STDIN_FILENO, TCSANOW, &originalTermios);
+}
+
+void* inputThread(void* arg) {
+    while (running) {
+        char ch = getchar();  // non-blocking now
+
+        if (ch == 'w' && direction != 's') direction = 'w';
+        else if (ch == 's' && direction != 'w') direction = 's';
+        else if (ch == 'a' && direction != 'd') direction = 'a';
+        else if (ch == 'd' && direction != 'a') direction = 'd';
+        else if (ch == 'q') running = false;
+
+        usleep(1000); 
+    }
+    return NULL;
+}
 
 int screenHeight;
 int screenWidth;
 char screen[10][10];
 
+int snakeHeadX,snakeHeadY;
+std::vector<std::vector<int>>snakeBody;
+
 std::random_device rd;
 std::mt19937 gen(rd());
-std::uniform_int_distribution<> dist(1, 10);
+
+std::uniform_int_distribution<> dist(1, 9);
 
 void printScreen() {
   std::cout << "\033[H";
@@ -34,22 +74,63 @@ void printScreen() {
   }
 }
 
-void *scatterFood(void *arg) {
-  while (1) {
+void scatterFood() {
     int foodSpotX = dist(gen);
     int foodSpotY = dist(gen);
     screen[foodSpotX][foodSpotY] = '*';
-    printScreen();
-    screen[foodSpotX][foodSpotY] = '.';
-
-    std::this_thread::sleep_for(std::chrono::seconds(1));
-  }
 }
 
 void setupScreen() {
   screenHeight = 10;
   screenWidth = 10;
   memset(screen, '.', sizeof(screen));
+}
+
+void setupSnake()
+{
+  snakeHeadX=5;
+  snakeHeadY=5;
+
+  snakeBody.push_back({4,5});
+}
+
+void snakeMovement()
+{
+	int X,Y;
+	screen[snakeHeadX][snakeHeadY]='o';
+	
+	for(int i=0;i<snakeBody.size();i++)
+	{
+		X=snakeBody[i][0];
+		Y=snakeBody[i][1];
+		screen[X][Y] = '#';
+	}
+
+	if(direction == 'w')
+	{
+		snakeHeadX--;
+		snakeBody[0][0]--;
+	}
+	else if(direction == 's')
+	{
+		snakeHeadX++;
+		snakeBody[0][0]++;
+	}
+	else if(direction == 'd')
+	{
+		snakeHeadY++;
+		snakeBody[0][1]++;
+	}
+	else if(direction == 'a')
+	{
+		snakeHeadY--;
+		snakeBody[0][1]--;
+	}
+}
+
+void clearScreen()
+{
+  memset(screen,'.',sizeof(screen));
 }
 
 int main() {
@@ -69,68 +150,23 @@ int main() {
   cursor is placed at the top right and screen is overWritten
   */
   printScreen();
+  setupSnake();
+     enableRawMode();
 
-  /*
-  ScatterFood function - this would randomly take a pixel between screenHeint
-  and screenWidth and randomly place a food ('*') on that pixel
-  */
+    pthread_t inputThreadId;
+    pthread_create(&inputThreadId, NULL, inputThread, NULL);
+  int i=10;
+  while(i)
+  {
+	std::cout<<" direction" <<direction<<std::endl;
+    scatterFood();
+    snakeMovement();
+    printScreen();
+    clearScreen();
 
-  pthread_t foodDistributionUnit;
-  pthread_create(&foodDistributionUnit, NULL, scatterFood, NULL);
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+    i--;   
+  }
+  disableRawMode();
 
-  std::this_thread::sleep_for(std::chrono::seconds(10));
-  pthread_join(foodDistributionUnit, NULL);
-
-  // int randomX = rand() % 20;
-  // int randomY = rand() % 20;
-  // printScreen();
-  // // Randomly scatter the food and snake controls
-
-  // char snakeHeads[4] = {'<', '>', '^', 'V'};
-  // int snakeX = rand() % 20;
-  // int snakeY = rand() % 20;
-
-  // screen[snakeX][snakeY] = snakeHeads[1];
-  // /*
-  // Randomly place a snake head at the start
-  // listens to 'W' 'A' 'S' 'D'
-  // and choose the snake head from there
-  // */
-  // char userInput;
-  // int whichHead;
-  // int currentInput;
-  // while (1) {
-  //   std::cin >> userInput;
-  //   if (userInput == 'w') {
-  //     whichHead = 2;
-  //     currentInput = 2;
-  //   } else if (userInput == 'a') {
-  //     whichHead = 0;
-  //     currentInput = 0;
-  //   } else if (userInput == 's') {
-  //     whichHead = 3;
-  //     currentInput = 3;
-  //   } else if (userInput == 'd') {
-  //     whichHead = 1;
-  //     currentInput = 1;
-  //   }
-  //   std::cout << "\033[H";
-  //   std::this_thread::sleep_for(std::chrono::seconds(1));
-  //   screen[randomX][randomY] = '.';
-  //   randomX = rand() % 20;
-  //   randomY = rand() % 20;
-  //   screen[randomX][randomY] = '*';
-  //   screen[snakeX][snakeY] = snakeHeads[whichHead];
-  //   printScreen();
-
-  //   if (currentInput == 2) {
-  //     snakeX++;
-  //   } else if (currentInput == 0) {
-  //     snakeY--;
-  //   } else if (currentInput == 3) {
-  //     snakeX--;
-  //   } else if (currentInput == 1) {
-  //     snakeY++;
-  //   }
-  // }
 }
