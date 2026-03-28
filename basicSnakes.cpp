@@ -39,7 +39,7 @@ void disableRawMode() {
 
 void* inputThread(void* arg) {
     while (running) {
-        char ch = getchar();  // non-blocking now
+        char ch = getchar(); 
 
         if (ch == 'w' && direction != 's') direction = 'w';
         else if (ch == 's' && direction != 'w') direction = 's';
@@ -96,36 +96,35 @@ void setupSnake()
 
 void snakeMovement()
 {
-	int X,Y;
-	screen[snakeHeadX][snakeHeadY]='o';
-	
-	for(int i=0;i<snakeBody.size();i++)
-	{
-		X=snakeBody[i][0];
-		Y=snakeBody[i][1];
-		screen[X][Y] = '#';
-	}
+    screen[snakeHeadX][snakeHeadY] = '.';
+    for (int i = 0; i < snakeBody.size(); i++) {
+        screen[snakeBody[i][0]][snakeBody[i][1]] = '.';
+    }
 
-	if(direction == 'w')
-	{
-		snakeHeadX--;
-		snakeBody[0][0]--;
-	}
-	else if(direction == 's')
-	{
-		snakeHeadX++;
-		snakeBody[0][0]++;
-	}
-	else if(direction == 'd')
-	{
-		snakeHeadY++;
-		snakeBody[0][1]++;
-	}
-	else if(direction == 'a')
-	{
-		snakeHeadY--;
-		snakeBody[0][1]--;
-	}
+    int prevX = snakeHeadX;
+    int prevY = snakeHeadY;
+
+    if (direction == 'w') snakeHeadX--;
+    else if (direction == 's') snakeHeadX++;
+    else if (direction == 'd') snakeHeadY++;
+    else if (direction == 'a') snakeHeadY--;
+
+    for (int i = 0; i < snakeBody.size(); i++) {
+        int tempX = snakeBody[i][0];
+        int tempY = snakeBody[i][1];
+
+        snakeBody[i][0] = prevX;
+        snakeBody[i][1] = prevY;
+
+        prevX = tempX;
+        prevY = tempY;
+    }
+
+    screen[snakeHeadX][snakeHeadY] = 'o';
+
+    for (int i = 0; i < snakeBody.size(); i++) {
+        screen[snakeBody[i][0]][snakeBody[i][1]] = '#';
+    }
 }
 
 void clearScreen()
